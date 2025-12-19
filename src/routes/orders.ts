@@ -182,8 +182,29 @@ export async function orderRoutes(
   });
 
   // GET /api/queue/stats - Get queue statistics
-  fastify.get('/api/queue/stats', async (request: FastifyRequest, reply: FastifyReply) => {
-    const stats = await queueService.getQueueStats();
-    return reply.send(stats);
-  });
+  fastify.get('/api/queue/stats', async () => {
+  const queueStats = await queueService.getQueueStats();
+
+  const result = await pool.query(
+    'SELECT COUNT(*)::int AS total FROM orders'
+  );
+
+  const activeOrders = await pool.query(
+    "SELECT COUNT(*)::int AS active FROM orders WHERE status NOT IN ('confirmed', 'failed')"
+  );
+
+  return {
+    ...queueStats,
+    websockets: wsManager.getActiveConnectionsCount(),
+    activeOrders: activeOrders.rows[0].active,
+    totalOrders: result.rows[0].total,
+  };
+});
+
+// DELETE /api/queue/reset
+fastify.delete('/api/queue/reset', async () => {
+  await queueService.resetQueue();
+  return { message: 'Queue stats reset successfully' };
+});
+
 }

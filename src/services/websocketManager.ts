@@ -17,6 +17,10 @@ export class WebSocketManager {
     }
   }
 
+  getActiveConnectionsCount(): number {
+  return this.connections.size;
+}
+
   unregister(orderId: string) {
     this.connections.delete(orderId);
     console.log(`🔌 WebSocket unregistered for order: ${orderId}`);

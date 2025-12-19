@@ -140,17 +140,45 @@ export class OrderQueueService {
     );
   }
 
-  async getQueueStats(): Promise<{
-    waiting: number;
-    active: number;
-    completed: number;
-    failed: number;
-  }> {
-    const waiting = await this.queue.getWaitingCount();
-    const active = await this.queue.getActiveCount();
-    const completed = await this.queue.getCompletedCount();
-    const failed = await this.queue.getFailedCount();
+  async getQueueStats() {
+  const [
+    waiting,
+    active,
+    completed,
+    failed,
+    delayed,
+  ] = await Promise.all([
+    this.queue.getWaitingCount(),
+    this.queue.getActiveCount(),
+    this.queue.getCompletedCount(),
+    this.queue.getFailedCount(),
+    this.queue.getDelayedCount(),
+  ]);
 
-    return { waiting, active, completed, failed };
-  }
+  return {
+    queue: {
+      waiting,
+      active,
+      completed,
+      failed,
+      delayed,
+    },
+  };
+}
+
+async resetQueue(): Promise<void> {
+  // Remove all completed jobs
+  await this.queue.clean(0, 10000, 'completed');
+
+  // Remove all failed jobs
+  await this.queue.clean(0, 10000, 'failed');
+
+  // Remove waiting & delayed jobs
+  await this.queue.clean(0, 10000, 'waiting');
+  await this.queue.clean(0, 10000, 'delayed');
+
+  // Remove paused jobs
+  await this.queue.clean(0, 10000, 'paused');
+}
+
 }
