@@ -4,7 +4,7 @@ A high-performance order execution engine for DEX trading with intelligent routi
 
 ## 🚀 Live Demo
 
-- **Live API**: https://order-execution-engine-production-2c02.up.railway.app/)
+- **Live API**: [https://order-execution-engine-production-2c02.up.railway.app/)](https://order-execution-engine-production-2c02.up.railway.app/)
 - **Demo Video**: https://youtu.be/YOUR_VIDEO_ID (Will be updated after recording)
 
 ## 📋 Table of Contents
@@ -520,62 +520,6 @@ All files             |   77.77 |    95.45 |   73.07 |   77.08 |
 
 ---
 
-## 🚀 Deployment
-
-### Deploy to Render
-
-1. **Create Render Account**: https://render.com
-
-2. **Create PostgreSQL Database**
-   - New → PostgreSQL
-   - Name: `order-execution-db`
-   - Free tier
-   - Copy the `Internal Database URL`
-
-3. **Create Redis Instance**
-   - New → Redis
-   - Name: `order-execution-redis`
-   - Free tier
-   - Copy the `Internal Redis URL`
-
-4. **Create Web Service**
-   - New → Web Service
-   - Connect your GitHub repository
-   - Settings:
-     - **Name**: `order-execution-engine`
-     - **Environment**: `Node`
-     - **Build Command**: `npm install && npm run build`
-     - **Start Command**: `npm start`
-     - **Plan**: Free
-
-5. **Add Environment Variables**
-```
-DATABASE_URL=<your-postgres-internal-url>
-REDIS_HOST=<your-redis-host>
-REDIS_PORT=<your-redis-port>
-NODE_ENV=production
-PORT=3000
-```
-
-6. **Deploy**: Click "Create Web Service"
-
-Your app will be live at: `https://your-app-name.onrender.com`
-
----
-
-## 📹 Demo Video
-
-The demo video demonstrates:
-1. ✅ Submitting 3-5 orders simultaneously
-2. ✅ Real-time WebSocket status updates
-3. ✅ DEX routing decisions in logs
-4. ✅ Queue processing multiple orders concurrently
-5. ✅ Complete order lifecycle from submission to confirmation
-
-Video link: https://youtu.be/YOUR_VIDEO_ID
-
----
-
 ## 📁 Project Structure
 
 ```
@@ -631,9 +575,12 @@ MIT
 
 ---
 
-## 👨‍💻 Author
+## 👤 Author
 
-Built for Eterna Labs Technical Assessment
+**Hemanth Chakravarthy Kancharla**
+- GitHub: [https://github.com/hemanth-chakravrthy/Order-Execution-Engine](https://github.com/hemanth-chakravarthy/Order-execution-engine)
+- Email: khchakri@gmail.com
 
-**GitHub**: https://github.com/yourusername/order-execution-engine
+---
+
 
