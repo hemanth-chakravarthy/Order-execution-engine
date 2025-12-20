@@ -358,8 +358,14 @@
                 ws.close();
             }
 
-            ws = new WebSocket(`ws://localhost:3000/api/orders/ws`);
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsHost = isLocal ? 'localhost:3000' : window.location.host;
+            const wsUrl = `${wsProtocol}//${wsHost}/api/orders/ws`;
 
+            console.log('Connecting to WebSocket:', wsUrl);
+            ws = new WebSocket(wsUrl);
+            
             ws.onopen = () => {
                 ws.send(JSON.stringify({ 
                     tokenIn, 
