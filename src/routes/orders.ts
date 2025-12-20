@@ -4,6 +4,9 @@ import { Order, OrderType, OrderStatus } from '../types';
 import { OrderQueueService } from '../services/orderQueue';
 import { WebSocketManager } from '../services/websocketManager';
 import { pool } from '../config/database';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
+import websocket from '@fastify/websocket';
 
 /* =======================
    Interfaces
@@ -240,5 +243,29 @@ fastify.get('/api/orders/ws-test', async (request, reply) => {
   fastify.delete('/api/queue/reset', async () => {
     await queueService.resetQueue();
     return { message: 'Queue stats reset successfully' };
+  });
+}
+
+export async function build(fastify: FastifyInstance) {
+  await fastify.register(websocket);
+
+  fastify.get('/health', async () => ({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+  }));
+
+  const wsManager = new WebSocketManager();
+  const queueService = new OrderQueueService(wsManager);
+
+  console.log('🔧 Registering routes...');
+  await fastify.register(async (instance) => {
+    await orderRoutes(instance, queueService, wsManager);
+  });
+  console.log('✅ Routes registered');
+
+  // Serve static AFTER routes so API routes (e.g. /health) are matched first
+  await fastify.register(fastifyStatic, {
+    root: path.join(__dirname, '../public'),
+    prefix: '/',
   });
 }
