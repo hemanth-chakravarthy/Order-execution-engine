@@ -17,7 +17,7 @@ async function buildServer() {
   const fastify = Fastify({
     logger: {
       level: 'info',
-      transport: {
+      transport: process.env.NODE_ENV === 'production' ? undefined : {
         target: 'pino-pretty',
         options: {
           translateTime: 'HH:MM:ss Z',
@@ -29,7 +29,7 @@ async function buildServer() {
 
   // Register CORS support
   await fastify.register(cors, {
-    origin: true, // Allow all origins for development
+    origin: true,
     credentials: true
   });
 
@@ -47,14 +47,30 @@ async function buildServer() {
   const queueService = new OrderQueueService(wsManager);
 
   // Register routes
+  console.log('🔧 Registering routes...');
   await fastify.register(async (instance) => {
     await orderRoutes(instance, queueService, wsManager);
   });
+  console.log('✅ Routes registered');
 
-  // Health check
+  // Health check endpoint
   fastify.get('/health', async () => {
     return { status: 'ok', timestamp: new Date().toISOString() };
   });
+
+  // Debug endpoint
+  fastify.get('/debug', async () => {
+    return {
+      nodeEnv: process.env.NODE_ENV,
+      port: PORT,
+      dirname: __dirname,
+      routes: fastify.printRoutes()
+    };
+  });
+
+  // List all routes for debugging
+  console.log('📋 Available routes:');
+  console.log(fastify.printRoutes());
 
   return fastify;
 }
@@ -68,21 +84,16 @@ async function start() {
     
     // Build and start server
     const fastify = await buildServer();
-    const address = await fastify.listen({ 
+    
+    await fastify.listen({ 
       port: PORT, 
-      host: '0.0.0.0',
-      listenTextResolver: (address) => {
-        return `Server listening at ${address}`;
-      }
+      host: '0.0.0.0'
     });
 
     console.log(`✅ Server listening on port ${PORT}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
-    console.log(`📡 WebSocket endpoint: /api/orders/ws`);
-
-    
-    console.log(`✅ Server listening on port ${PORT}`);
     console.log(`🌐 Open http://localhost:${PORT} to test the application`);
+    console.log(`📡 WebSocket endpoint: /api/orders/ws`);
   } catch (error) {
     console.error('❌ Server startup failed:', error);
     process.exit(1);
