@@ -8,9 +8,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest --coverage --forceExit",
-    "test:watch": "jest --watch --forceExit",
-    "lint": "eslint src --ext .ts",
-    "format": "prettier --write \"src/**/*.ts\""
+    "railway:start": "npm run build && npm start"
   },
   "keywords": [
     "solana",
