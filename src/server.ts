@@ -68,7 +68,18 @@ async function start() {
     
     // Build and start server
     const fastify = await buildServer();
-    await fastify.listen({ port: PORT, host: '0.0.0.0' });
+    const address = await fastify.listen({ 
+      port: PORT, 
+      host: '0.0.0.0',
+      listenTextResolver: (address) => {
+        return `Server listening at ${address}`;
+      }
+    });
+
+    console.log(`✅ Server listening on port ${PORT}`);
+    console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
+    console.log(`📡 WebSocket endpoint: /api/orders/ws`);
+
     
     console.log(`✅ Server listening on port ${PORT}`);
     console.log(`🌐 Open http://localhost:${PORT} to test the application`);

@@ -169,6 +169,15 @@ export async function orderRoutes(
     });
   });
 
+  // Test endpoint to verify WebSocket route exists
+fastify.get('/api/orders/ws-test', async (request, reply) => {
+  return { 
+    message: 'WebSocket route is registered',
+    endpoint: '/api/orders/ws',
+    protocol: 'ws:// or wss://'
+  };
+});
+
   /* =======================
      GET /api/orders/:orderId
   ======================= */
