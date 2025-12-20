@@ -6,19 +6,6 @@ A high-performance order execution engine for DEX trading with intelligent routi
 
 - **Live API**: [https://order-execution-engine-production-2c02.up.railway.app/)](https://order-execution-engine-production-2c02.up.railway.app/)
 - **Demo Video**: https://youtu.be/YOUR_VIDEO_ID (Will be updated after recording)
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Setup Instructions](#setup-instructions)
-- [API Documentation](#api-documentation)
-- [Design Decisions](#design-decisions)
-- [Testing](#testing)
-- [Deployment](#deployment)
-
 ---
 
 ## 🎯 Overview
@@ -582,5 +569,6 @@ MIT
 - Email: khchakri@gmail.com
 
 ---
+
 
 
