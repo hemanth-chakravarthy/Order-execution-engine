@@ -42,6 +42,20 @@ async function buildServer() {
   // Register WebSocket support
   await fastify.register(websocket);
 
+  // Health check endpoint - BEFORE route registration
+  fastify.get('/health', async () => {
+    return { status: 'ok', timestamp: new Date().toISOString() };
+  });
+
+  // Debug endpoint - BEFORE route registration
+  fastify.get('/debug', async () => {
+    return {
+      nodeEnv: process.env.NODE_ENV,
+      port: PORT,
+      dirname: __dirname
+    };
+  });
+
   // Initialize services
   const wsManager = new WebSocketManager();
   const queueService = new OrderQueueService(wsManager);
@@ -52,21 +66,6 @@ async function buildServer() {
     await orderRoutes(instance, queueService, wsManager);
   });
   console.log('✅ Routes registered');
-
-  // Health check endpoint
-  fastify.get('/health', async () => {
-    return { status: 'ok', timestamp: new Date().toISOString() };
-  });
-
-  // Debug endpoint
-  fastify.get('/debug', async () => {
-    return {
-      nodeEnv: process.env.NODE_ENV,
-      port: PORT,
-      dirname: __dirname,
-      routes: fastify.printRoutes()
-    };
-  });
 
   // List all routes for debugging
   console.log('📋 Available routes:');
