@@ -2,21 +2,27 @@ import Fastify from 'fastify';
 import websocket from '@fastify/websocket';
 import cors from '@fastify/cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import fastifyStatic from '@fastify/static';
+
 import { initializeDatabase } from './config/database';
 import { OrderQueueService } from './services/orderQueue';
 import { WebSocketManager } from './services/websocketManager';
 import { orderRoutes } from './routes/orders';
-import path from 'path';
-import fastifyStatic from '@fastify/static';
 
 dotenv.config();
 
-// 🚨 FIX 1: Railway-safe PORT handling
+/* ---------------------------------------------------
+   Railway-safe PORT handling
+--------------------------------------------------- */
 const PORT = Number(process.env.PORT);
 if (!PORT) {
   throw new Error('PORT environment variable is not defined');
 }
 
+/* ---------------------------------------------------
+   Build Fastify server
+--------------------------------------------------- */
 async function buildServer() {
   const fastify = Fastify({
     logger: {
@@ -34,18 +40,16 @@ async function buildServer() {
     },
   });
 
+  /* ---------------- CORS ---------------- */
   await fastify.register(cors, {
     origin: true,
     credentials: true,
   });
 
-  await fastify.register(fastifyStatic, {
-    root: path.join(__dirname, '../public'),
-    prefix: '/',
-  });
-
+  /* ---------------- WebSocket ---------------- */
   await fastify.register(websocket);
 
+  /* ---------------- Health + Debug (MUST be before static) ---------------- */
   fastify.get('/health', async () => ({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -57,21 +61,33 @@ async function buildServer() {
     dirname: __dirname,
   }));
 
+  /* ---------------- Static files (SAFE PREFIX) ---------------- */
+  await fastify.register(fastifyStatic, {
+    root: path.join(__dirname, '../public'),
+    prefix: '/public/', // 🚨 DO NOT use '/'
+  });
+
+  /* ---------------- Services ---------------- */
   const wsManager = new WebSocketManager();
   const queueService = new OrderQueueService(wsManager);
 
-  console.log('🔧 Registering routes...');
+  /* ---------------- API Routes ---------------- */
+  console.log('🔧 Registering order routes...');
   await fastify.register(async (instance) => {
     await orderRoutes(instance, queueService, wsManager);
   });
-  console.log('✅ Routes registered');
+  console.log('✅ Order routes registered');
 
-  console.log('📋 Available routes:');
+  /* ---------------- Debug: Print Routes ---------------- */
+  console.log('📋 Available routes:\n');
   console.log(fastify.printRoutes());
 
   return fastify;
 }
 
+/* ---------------------------------------------------
+   Start server
+--------------------------------------------------- */
 async function start() {
   try {
     console.log('🚀 Starting Order Execution Engine...');
@@ -94,7 +110,9 @@ async function start() {
   }
 }
 
-// 🚨 FIX 2: Graceful shutdown for Railway
+/* ---------------------------------------------------
+   Graceful shutdown (Railway-friendly)
+--------------------------------------------------- */
 const shutdown = async () => {
   console.log('🛑 SIGTERM received. Shutting down gracefully...');
   process.exit(0);
